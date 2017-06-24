@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block links %}
+	<link href="{% static 'assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css' %}" rel="stylesheet" type="text/css" />
+{% endblock %}
+{% block content %}
+	<style>
+		td {
+			padding: 4px;
+		}
+		th {
+			padding: 4px;
+		}
+		select {
+			width: 100%;
+		}
+	</style>
+	<h1 class="page-title"> Статистика матча</h1>
+	<div class="row">
+        <div class="col-md-12">
+        <!-- BEGIN EXAMPLE TABLE PORTLET-->
+		
+            <div class="portlet light portlet-fit bordered">
+                    <div class="portlet-body">
+					
+					<form class="form-horizontal">
+						<div class="form-body">
+							<div class="col-md-2">
+								<select name="home_team" class="form-control input-sm" onChange="selectLeague.call(this)">
+									<option disabled="disabled" selected="selected" value="Лига">Лига</option>
+									{% for league in leagues %}
+										<option value='{{league.id}}'>{{league}}</option>
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+					</form>
+					
+					<script type="text/javascript">
+						function getCookie(name) {
+							var cookieValue = null;
+							if (document.cookie && document.cookie !== '') {
+								var cookies = document.cookie.split(';');
+								for (var i = 0; i < cookies.length; i++) {
+									var cookie = jQuery.trim(cookies[i]);
+									// Does this cookie string begin with the name we want?
+									if (cookie.substring(0, name.length + 1) === (name + '=')) {
+										cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+										break;
+									}
+								}
+							}
+							return cookieValue;
+						}
+
+						function csrfSafeMethod(method) {
+							// these HTTP methods do not require CSRF protection
+							return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+						}
+						function selectLeague() {
+							console.log('in selectLeague');
+							var csrftoken = getCookie('csrftoken');
+							if (this.options[this.selectedIndex].value !== "Лига") {
+								$.ajaxSetup({
+									beforeSend: function(xhr, settings) {
+										if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+											xhr.setRequestHeader("X-CSRFToken", csrftoken);
+										}
+									}
+									// headers: {
+									//     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+									// }
+								});
+								$.ajax({
+									url: '/form_test/',
+									type: 'POST',
+									dataType: 'json',
+									data: { selected_league: this.options[this.selectedIndex].value }
+								}).success(function(data) {
+									if (data.status == 'ok') {
+										console.log(data.status);
+										console.log(data.teams);
+										teams = '';
+										for (var index=0; index < data.teams.length; index++){
+											teams += '<option>' + data.teams[index] + '</option>';
+										}
+										document.getElementById('home_team_select').innerHTML += teams;
+										document.getElementById('guest_team_select').innerHTML += teams;
+									}
+								}).error (function() {
+									console.log('error' + '{{teams}}');
+								});
+								
+							}
+						}
+					</script>
+					
+					<form action="{% url 'form_test' %}" class="form-horizontal" method="post" role="form">
+					{% csrf_token %}
+						<div class="form-body">
+							<div class="form-group">
+								<div class="col-md-2"><select id="home_team_select" name="home_team" class="form-control input-sm">
+									<option disabled="disabled" selected="selected" value="Хозяева">Хозяева</option>
+									<!--{% for team in teams %}
+										<option>{{team}}</option>
+									{% endfor %}-->
+								</select></div>
+							</div>
+							<div class="form-group">
+								<div class="col-md-2"><select id="guest_team_select" name="guest_team" class="form-control input-sm">
+								<option disabled="disabled" selected="selected" value="0">Гости</option>
+								<!--{% for team in teams %}
+									<option>{{team}}</option>
+								{% endfor %}-->
+								</select></div>
+							</div>
+							<div class="form-group">
+								<div class="col-md-2">
+								<!--"yyyy-mm-dd"-->
+									<div class="input-group date date-picker" data-date-format="dd/mm/yy"><input name="date" class="form-control input-sm" readonly="readonly" type="text"> <span class="input-group-btn"><button class="btn btn-sm default" type="button"></button></span></div>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-md-2"><select name="position" class="form-control input-sm"><option>Вратари</option><option>Полевые</option></select></div>
+							</div>
+							<button class="btn btn-sm blue" type="submit">Отчет</button>
+							<br/>
+							<p>{{info}}</p>
+						</div>
+					</form>
+					<p>{{match.home_team}}</p>
+					<p>{{match.home_team_goals}}</p>
+					
+				</div>
+			</div>		
+        </div>
+    </div>
+	
+{% endblock %}
+{% block scripts %}
+	<script>
+        // Loading the data for use in JS components here
+        (function () {
+			window.homeTeam = '{{home_team}}';
+			window.guestTeam = '{{guest_team}}';
+            //window.tableData = JSON.parse('{{ table_data }}');
+        }());
+    </script>
+	{% if goalkeepers_stat_home != '' or goalkeepers_stat_guest != '' %}
+		<script>
+        // Loading the data for use in JS components here
+        (function () {
+			window.categories = ['др+', 'др-', 'ошиб', 'спас', 'гол пропущ', 'удар'];
+			//window.homeTeamStat = //{% autoescape off %}{{ goalkeepers_stat_home_general }}{% endautoescape %};
+			window.homeTeamStat = [Number('{{goalkeepers_stat_home_general.dr_plus}}'), Number('{{goalkeepers_stat_home_general.dr_minus}}'), Number('{{goalkeepers_stat_home_general.errors}}'), Number('{{goalkeepers_stat_home_general.saves}}'), Number('{{goalkeepers_stat_home_general.missed_goals}}'), Number('{{goalkeepers_stat_home_general.shots_on_target}}')];
+			window.guestTeamStat = [Number('{{goalkeepers_stat_guest_general.dr_plus}}'), Number('{{goalkeepers_stat_guest_general.dr_minus}}'), Number('{{goalkeepers_stat_guest_general.errors}}'), Number('{{goalkeepers_stat_guest_general.saves}}'), Number('{{goalkeepers_stat_guest_general.missed_goals}}'), Number('{{goalkeepers_stat_guest_general.shots_on_target}}')];
+            //window.tableData = JSON.parse('{{ table_data }}');
+        }());
+		</script>
+	{% else %}
+		<script>
+        // Loading the data for use in JS components here
+        (function () {
+			window.categories = ['голы', 'пер', 'гол+пас', 'фол+', 'фол-', 'др+', 'др-', 'пот', 'пер', 'ств', 'мимо'];
+			//window.homeTeamStat = //{% autoescape off %}{{ goalkeepers_stat_home_general }}{% endautoescape %};
+			window.homeTeamStat = [Number('{{field_players_stat_home_general.goals}}'), Number('{{field_players_stat_home_general.passes}}'), Number('{{field_players_stat_home_general.goal_pass}}'), Number('{{field_players_stat_home_general.foul_plus}}'), Number('{{field_players_stat_home_general.foul_minus}}'), Number('{{field_players_stat_home_general.dr_plus}}'), Number('{{field_players_stat_home_general.dr_minus}}'), Number('{{field_players_stat_home_general.lost_ball}}'), Number('{{field_players_stat_home_general.interceptions}}'), Number('{{field_players_stat_home_general.in_target}}'), Number('{{field_players_stat_home_general.out_target}}')];
+			
+			window.guestTeamStat = [Number('{{field_players_stat_guest_general.goals}}'), Number('{{field_players_stat_guest_general.passes}}'), Number('{{field_players_stat_guest_general.goal_pass}}'), Number('{{field_players_stat_guest_general.foul_plus}}'), Number('{{field_players_stat_guest_general.foul_minus}}'), Number('{{field_players_stat_guest_general.dr_plus}}'), Number('{{field_players_stat_guest_general.dr_minus}}'), Number('{{field_players_stat_guest_general.lost_ball}}'), Number('{{field_players_stat_guest_general.interceptions}}'), Number('{{field_players_stat_guest_general.in_target}}'), Number('{{field_players_stat_guest_general.out_target}}')];
+            //window.tableData = JSON.parse('{{ table_data }}');
+        }());
+		</script>
+	{% endif %}
+	<script src="{% static 'assets/global/plugins/jquery-slimscroll/jquery.slimscroll.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'assets/global/plugins/jquery.blockui.min.js' %}" type="text/javascript' %}"></script>
+    <script src="{% static 'assets/global/plugins/bootstrap-switch/js/bootstrap-switch.min.js' %}" type="text/javascript"></script>
+	<script src="{% static 'assets/global/plugins/bootstrap-confirmation/bootstrap-confirmation.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'assets/global/scripts/datatable.js' %}" type="text/javascript"></script>
+    <script src="{% static 'assets/global/plugins/datatables/datatables.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js' %}" type="text/javascript"></script>
+	<script src="{% static 'assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"  type="text/javascript"></script>
+    <!-- END PAGE LEVEL PLUGINS -->
+    <!-- BEGIN THEME GLOBAL SCRIPTS -->
+    <script src="{% static 'assets/global/scripts/app.min.js' %}" type="text/javascript"></script>
+    <!-- END THEME GLOBAL SCRIPTS -->
+    <!-- BEGIN PAGE LEVEL SCRIPTS -->
+    <script src="{% static 'assets/custom/scripts/teams_table.js' %}" type="text/javascript"></script>
+	
+	<script src="{% static 'assets/custom/scripts/datepickers.js' %}" type="text/javascript"></script>
+    <!-- END PAGE LEVEL SCRIPTS -->
+{% endblock %}

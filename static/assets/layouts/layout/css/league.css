@@ -1,0 +1,81 @@
+.dropdown {
+  //position: absolute;
+  //top:50%;
+  //transform: translateY(-50%);
+
+}
+
+.dropdown dd,
+.dropdown dt {
+  margin: 0px;
+  padding: 0px;
+}
+
+.dropdown ul {
+  padding: 0px 5px 5px 5px;
+  margin: -1px 0 0 0;
+  width: 113px;
+  z-index: 10;
+  border: 1px solid #c2cad8;
+  border-radius: 3px;
+}
+
+.dropdown dd {
+  position: relative;
+}
+
+.dropdown a,
+.dropdown a:visited {
+  color: #555;
+  text-decoration: none;
+  outline: none;
+  font-size: 14px;
+  min-height: 30px;
+}
+
+.dropdown dt a {
+  width: 113px;
+  background-color: #eef1f5;
+  display: block;
+  //padding: 8px 20px 5px 10px;
+  min-height: 30px;
+  line-height: 30px;
+  overflow: hidden;
+  border: 1px solid #c2cad8;
+  border-radius: 3px;
+}
+
+.dropdown dt a span,
+.multiSel span {
+  font-weight: normal;
+  cursor: pointer;
+  display: inline-block;
+  //padding: 0 3px 2px 0;
+}
+
+.dropdown dd ul {
+  background-color: #eef1f5;
+  border: 1px solid #c2cad8;
+  border-radius: 3px;
+  color: #555;
+  display: none;
+  left: 0px;
+  //padding: 2px 15px 2px 5px;
+  position: absolute;
+  top: 2px;
+  list-style: none;
+  overflow: auto;
+}
+
+.dropdown span.value {
+  display: none;
+}
+
+.dropdown dd ul li a {
+  //padding: 5px;
+  display: block;
+}
+
+.dropdown dd ul li a:hover {
+  background-color: #ACB5C3;
+}
