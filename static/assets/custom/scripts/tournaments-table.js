@@ -45,7 +45,7 @@ var TableDatatablesEditable = function () {
                 data: formData,
                 dataType: 'json',
                 type: method,
-                url: '/leagues/',
+                url: '/tournaments/',
                 success: function (response) {
                     if (!response.error && method == 'POST')
                     {
@@ -75,7 +75,7 @@ var TableDatatablesEditable = function () {
             $.ajax({
                 dataType: 'json',
                 type: 'DELETE',
-                url: '/edit_delete_league/' + dataId,
+                url: '/edit_delete_tournament/' + dataId,
                 success: function (data) {
                     console.log(data);
                 },
@@ -104,7 +104,7 @@ var TableDatatablesEditable = function () {
                 data: formData,
                 dataType: 'json',
                 type: method,
-                url: '/edit_delete_league/' + id + '/',
+                url: '/edit_delete_tournament/' + id + '/',
                 success: function (response) {
                     if (!response.error && method == 'POST')
                     {
@@ -280,7 +280,7 @@ var TableDatatablesEditable = function () {
                 }
             }
 
-            var aiNew = oTable.fnAddData(['', '', '', '','','']);
+            var aiNew = oTable.fnAddData(['', '', '', '', '', '']);
             var nRow = oTable.fnGetNodes(aiNew[0]);
             editRow(oTable, nRow);
             nEditing = nRow;
@@ -371,8 +371,8 @@ var TableDatatablesEditable = function () {
                 var aData = oTable.fnGetData(nRow);
                 var formData = {
                     tournament: aData[0],
-					sport:sport,
-					type:type
+					sport: aData[1],
+					type: aData[2]
                 };
              
                 if (id !== undefined) {
