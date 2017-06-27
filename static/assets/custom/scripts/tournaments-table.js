@@ -280,7 +280,7 @@ var TableDatatablesEditable = function () {
                 }
             }
 
-            var aiNew = oTable.fnAddData(['', '', '', '']);
+            var aiNew = oTable.fnAddData(['', '', '', '','','']);
             var nRow = oTable.fnGetNodes(aiNew[0]);
             editRow(oTable, nRow);
             nEditing = nRow;
